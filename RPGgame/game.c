@@ -1,18 +1,59 @@
 #include "game.h"
 
-int player_hp = 100;
-int player_att = 10;
-int player_def = 8;
+void init_game(int* player_hp, int* player_att, int* player_def,
+	int* monster_hp, int* monster_att, int* monster_def) {
 
-int monster_hp = 80;
-int monster_att = 10;
-int monster_def = 8;
+	printf("Initialize the game.\n");
+	*player_hp = 100;
+	*player_att = 10;
+	*player_def = 8;
+
+	*monster_hp = 80;
+	*monster_att = 10;
+	*monster_def = 8;
+
+	srand(time(NULL));
+}
+
+void run_game(int* player_hp, int* player_att, int* player_def,
+	int* monster_hp, int* monster_att, int* monster_def) {
+
+	while (1) {
+		print_status(*player_hp, *player_att, *player_def, 
+			*monster_hp, *monster_att, *monster_def);
+		int choice = print_menu();
+
+		if (choice == 1)  attack(player_hp, *player_att, *player_def,
+			monster_hp, *monster_att, *monster_def);
+		else if (choice == 2)defense(player_hp, *player_att, *player_def,
+			monster_hp, *monster_att, *monster_def);
+		else if (choice == 3) {
+			printf("Bye Bye\n");
+			break;
+		}
+		else {
+			printf("Wrong input\n");
+			continue;
+		}
+		if (player_hp <= 0) {
+			printf("You lose.\n");
+			break;
+		}
+		else if (monster_hp <= 0) {
+			printf("You Won.\n");
+			break;
+		}
+
+	}
+}
+
 
 void print_status(int player_hp, int player_att, int player_def,
 	int monster_hp, int monster_att, int monster_def) {
 	printf("Player status===================\n");
 	printf("-  HP : %d\n", player_hp);
 	printf("-  ATT : %d\n", player_att);
+// 매개변수 값을 바꾸는게 아니라서 호출할 필요가 없다
 	printf("-  DEF : %d\n", player_def);
 	printf("Monster status===================\n");
 	printf("-  HP : %d\n", monster_hp);
@@ -44,32 +85,35 @@ int calculate_damage(int att, int def, int do_critical) {
 	return damage;
 }
 
-void attack() {
+void attack(int* player_hp, int player_att, int player_def,
+	int* monster_hp, int monster_att, int monster_def) {
+// 값을 변경해주는건 포인터로 변경한다
 	int damage = calculate_damage(player_att, monster_def, TRUE);
 
 	printf("Hit the monster with damage %d.\n", damage);
-	monster_hp -= damage;
+	*monster_hp -= damage;
 
 	int cntatt = rand() % 2;
 	if (monster_hp > 0 && cntatt) {
 		printf("Watch out! Monster's counterattack!\n");
 		damage = calculate_damage(monster_att, player_def, FALSE);
-		player_hp -= damage;
+		*player_hp -= damage;
 		printf("Got damage %d from the monster. \n", damage);
 
 	}
 }
-void defense() {
+void defense(int* player_hp, int player_att, int player_def,
+	int* monster_hp, int monster_att, int monster_def) {
 	int damage = calculate_damage(monster_att, player_def, TRUE);
 
 	printf("Got damage %d from the monster.\n", damage);
-	player_hp -= damage;
+	*player_hp -= damage;
 
 	int cntatt = rand() % 2;
 	if (player_hp > 0 && cntatt) {
 		printf("Let's counterattack. \n");
 		int damage = calculate_damage(player_att, monster_def, FALSE);
-		monster_hp -= damage;
+		*monster_hp -= damage;
 		printf("Hit the monster with damage %d. \n", damage);
 	}
 }
